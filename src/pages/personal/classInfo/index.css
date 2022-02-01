@@ -1,0 +1,11 @@
+.ant-list-item-meta-description {
+    width: 400px;
+}
+
+.search {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 24px;
+    margin-bottom: 20px;
+}

@@ -1,0 +1,24 @@
+.recordDetail {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-column-gap: 20px;
+}
+
+.leftDetail {
+    height: 380px;
+    padding: 5px;
+    background: rgb(240, 242, 245);
+}
+
+.leftDetail * + * {
+    margin-top: 10px
+}
+
+.rightDetail {
+    height: 380px;
+    background: rgb(240, 242, 245);
+}
+
+.ril__image {
+    background-color: white;
+}
