@@ -81,7 +81,7 @@ const HistoryDetail = function() {
                     <div>介绍:{recordDetail?.introduction}</div>
                     <div>是否完整结束：{recordDetail?.end.toString()}</div>
                     <div>教学班级：{recordDetail?.class}</div>
-                    <div>教学历史图片：
+                    <div>教学历史图片({'共'+ recordDetail?.images.length + '张'})：
                         <Button type="primary" onClick={()=>{setIsOpen(true)}}>点击查看</Button>
                     </div>
                 </div>

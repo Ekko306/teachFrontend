@@ -14,6 +14,11 @@ const Area3 = ({disabled = true}) => {
             setReady(true)
         }
     })
+    const [disabledIn, setDisabledIn] = useState()
+    useEffect(()=>{
+        setDisabledIn(disabled)
+        console.log('disabled变化了', disabled)
+    },[disabled])
     const groupName = useSelector(selectSignalRGroupName)
     useEffect(() => {
         if (ready) {
@@ -25,7 +30,7 @@ const Area3 = ({disabled = true}) => {
 
     return (
         <div style={{background: 'white', width: "100%", height: "380px", position: 'relative'}} id="painting">
-            {disabled && <div style={{
+            {disabledIn && <div style={{
                 position: 'absolute',
                 top: 0,
                 left: 0,

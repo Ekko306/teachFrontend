@@ -11,6 +11,7 @@
     height: 790px;
     margin-top: 20px;
     overflow: hidden;
+    position: relative;
 }
 
 .loading {
@@ -29,6 +30,13 @@
     column-gap: 20px;
     grid-template-rows: 1fr 1fr;
     row-gap: 20px;
+}
+
+.yincang {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
 }
 
 

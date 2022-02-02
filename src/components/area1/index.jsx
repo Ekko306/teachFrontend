@@ -22,33 +22,34 @@ const Area1 = ({setChatContentString, kind}) => {
     const [playBack] = useSound(receiveSound)
 
 
-    const [chat, setChat] = useState([
-        {
-            name: '旗木卡卡西',
-            chat: '你好',
-            time: (new Date()).valueOf().toString(),
-        },
-        {
-            name: '迈特凯',
-            chat: '我们来比试把！我永远的对手！',
-            time: (new Date()).valueOf().toString(),
-        },
-        {
-            name: '旗木卡卡西',
-            chat: '好吧(╯▽╰)',
-            time: (new Date()).valueOf().toString(),
-        },
-        {
-            name: '系统通知：',
-            chat: '新同学鸣人加入了本次教学',
-            time: (new Date()).valueOf().toString()
-        },
-        {
-            name: '迈特凯',
-            chat: '那我们比什么？',
-            time: (new Date()).valueOf().toString(),
-        },
-    ])
+    // const [chat, setChat] = useState([
+    //     {
+    //         name: '旗木卡卡西',
+    //         chat: '你好',
+    //         time: (new Date()).valueOf().toString(),
+    //     },
+    //     {
+    //         name: '迈特凯',
+    //         chat: '我们来比试把！我永远的对手！',
+    //         time: (new Date()).valueOf().toString(),
+    //     },
+    //     {
+    //         name: '旗木卡卡西',
+    //         chat: '好吧(╯▽╰)',
+    //         time: (new Date()).valueOf().toString(),
+    //     },
+    //     {
+    //         name: '系统通知：',
+    //         chat: '新同学鸣人加入了本次教学',
+    //         time: (new Date()).valueOf().toString()
+    //     },
+    //     {
+    //         name: '迈特凯',
+    //         chat: '那我们比什么？',
+    //         time: (new Date()).valueOf().toString(),
+    //     },
+    // ])
+    const [chat, setChat] = useState([])
 
 
     useEffect(() => {

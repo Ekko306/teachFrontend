@@ -5,10 +5,21 @@ const checkStatus = res => {
     if (200 <= res.status && res.status < 300) {
         return res;
     }
-    message.error(`网络请求失败,${res.status}`);
-    const error = new Error(res.statusText);
-    error.response = res;
-    throw error;
+
+    // 这里是删除online  有两种情况 一个是 手动结束 已经下线了 但是生命周期太复杂 不能设置flag 二个是卸载时删除 对于用户非法操作 两个冲突了 这里请求出减少提示 条件恨死
+    if(res.url.indexOf('online') && res.status === 404) {
+        const error = new Error(res.statusText);
+        error.response = res;
+        throw error;
+    } else {
+        message.error(`网络请求失败,${res.status}`);
+        const error = new Error(res.statusText);
+        error.response = res;
+        throw error;
+    }
+
+
+
 };
 
 /**

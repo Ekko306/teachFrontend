@@ -17,7 +17,7 @@ const ChatComponent = ({data, height=325}) => {
         console.log(data)
         console.log(playBack)
         chatRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start'})
-        if(data[data.length - 1].name !== userInfo.name && height === 325) { // 不是自己发出提示音
+        if(data[data.length - 1]?.name !== userInfo?.name && height === 325 && data.length !== 0) { // 不是自己发出提示音
             playBack()
         }
     }, [data,playBack])
@@ -33,14 +33,14 @@ const ChatComponent = ({data, height=325}) => {
     return (
         <div className='chatComponent' id="chatComponent" style={{height: height}}>
             {data.map((ele, index) => {
-                const self = userInfo.name === ele.name
-                if (ele.name === "系统通知：") {
-                    return <span key={index} style={{alignSelf: 'center'}}>{toReadTime(ele.time) + " " + ele.name + ele.chat}</span>
+                const self = userInfo?.name === ele?.name
+                if (ele?.name === "系统通知：") {
+                    return <span key={index} style={{alignSelf: 'center'}}>{toReadTime(ele.time) + " " + ele?.name + ele?.chat}</span>
                 } else {
                     return (
                         <span key={index} className={classNames('border', {'rightText': self})}>
-                        <span>{toReadTime(ele.time)}</span>
-                        <span>{(self ? '' : `${ele.name}: `) + ele.chat}</span>
+                        <span>{toReadTime(ele?.time)}</span>
+                        <span>{(self ? '' : `${ele?.name}: `) + ele?.chat}</span>
                     </span>
                     )
                 }

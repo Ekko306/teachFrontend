@@ -75,7 +75,7 @@ const Teach = function () {
 
     const [stu_status, setStu_status] =useState('unAllowEdit')
 
-    usePrompt("您有未结束的教学！离开将丢失数据！！", status === 'teaching');
+    usePrompt("您有未结束的教学！离开将丢失数据！！", status === 'teaching' && userKind === 'teacher');
 
     useEffect(()=>{
         console.log(onlineInfo, 'onlineInfo')
@@ -103,7 +103,10 @@ const Teach = function () {
                                    })
                                })
                                // dispatch(selectImages())
-                               setStatus('end')
+                               setTimeout(()=>{
+                                   setStatus('end')
+                               }, 3000)
+                               setStu_status('end')
                            }).catch((e) => {
                                message.error('历史信息格式错误，创建失败！')
                            })
@@ -238,37 +241,27 @@ const Teach = function () {
                 <div className="teaching">
                     <Area1 setChatContentString={setChatContentString} kind={userKind}/>
                     <Area2 onlineInfo={onlineInfo} teacherSelect={stu_teacherSelect}/>
-                    <Area3 disabled={(userKind !== 'teacher') && stu_status !== 'allowEdit'}/>
-                    <AccessControl
-                        allowedPermissions={["在线教学权限"]}
-                        renderNoAccess={() => (
-                            <div style={{background: 'white', width: "100%", height: "380px", padding: '10px'}}>
-                                <div>当前状态：{stu_status}</div>
-                                <div>1. 若状态为unAllowEdit：你不可编辑，只能查看老师教学</div>
-                                <div>2. 若状态为AllowEdit：可编辑并且提交你的作品</div>
-                            </div>
-                        )
-                        }
-                    >
-                        <Area4
-                            func={setStatus}
-                            onEndFunc={() => {
-                                setInputJSON((prev) => {
-                                    let nowObj = JSON.parse(prev)
-                                    nowObj.chat_content = chatContentString
-                                    nowObj.images = savedImages.images
-                                    console.log(nowObj, 'nowObj')
-                                    return JSON.stringify(nowObj, null, 2)
-                                })
-                                setIsModalVisible(true);
-                            }}/>
-                    </AccessControl>
+                    <Area3 disabled={stu_status !== 'allowEdit' && userKind !== 'teacher'}/>
+                    <Area4
+                        func={setStatus}
+                        setStu_status={setStu_status}
+                        stu_status={stu_status}
+                        onEndFunc={() => {
+                            setInputJSON((prev) => {
+                                let nowObj = JSON.parse(prev)
+                                nowObj.chat_content = chatContentString
+                                nowObj.images = savedImages.images
+                                console.log(nowObj, 'nowObj')
+                                return JSON.stringify(nowObj, null, 2)
+                            })
+                            setIsModalVisible(true);
+                        }}/>
 
                 </div>
                 }
                 {status === "end" &&
                 <div className="end">
-                    结束教学
+                    {userKind==='teacher' ? '数据已保存，已成功结束教学😊！' : '若老师未结束教学，可再次加入！再加入学生状态初始化，要求老师再次设置状态！！！'}
                 </div>
                 }
             </div>

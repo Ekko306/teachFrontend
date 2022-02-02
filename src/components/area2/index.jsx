@@ -68,7 +68,7 @@ const Area2 = ({onlineInfo, teacherSelect}) => {
         <div style={{background: 'white', width: "100%", height: "380px"}}>
             {onlineInfo && <ReactPolling
                 url={'/api/online/student/' + onlineInfo?.teachRecordId}
-                interval= {5000}
+                interval= {3000}
                 method={'GET'}
                 onSuccess={(res)=>{
                     console.log('轮询成功')
