@@ -239,7 +239,7 @@ const Teach = function () {
                 }
                 {status === "teaching" &&
                 <div className="teaching">
-                    <Area1 setChatContentString={setChatContentString} kind={userKind}/>
+                    <Area1 setChatContentString={setChatContentString} kind={userKind} onlineInfo={onlineInfo}/>
                     <Area2 onlineInfo={onlineInfo} teacherSelect={stu_teacherSelect}/>
                     <Area3 disabled={stu_status !== 'allowEdit' && userKind !== 'teacher'}/>
                     <Area4

@@ -11,7 +11,7 @@ import sendSound from '../../assets/mixkit-software-interface-start-2574.wav'
 import receiveSound from '../../assets/mixkit-software-interface-back-2575.wav'
 
 
-const Area1 = ({setChatContentString, kind}) => {
+const Area1 = ({setChatContentString, kind, onlineInfo}) => {
     const dispatch = useDispatch()
     const userInfo = useSelector(selectUserInfo);
     const [connection, setConnection] = useState(undefined)
@@ -53,7 +53,7 @@ const Area1 = ({setChatContentString, kind}) => {
 
 
     useEffect(() => {
-
+        if(onlineInfo) {
             let saveString = chat.map(e=>JSON.stringify(e))
             setChatContentString(saveString.toString())
 
@@ -87,11 +87,13 @@ const Area1 = ({setChatContentString, kind}) => {
                         })
                         // 组名参数
                         console.log(kind, 'userKind!!!看看能不能获取！！ 烦死了')
+
                     if(kind === 'teacher') {
-                        connectionInit.invoke("AddTeacherToGroup", userInfo.name, "61f0bb74593884e759700f0a", (new Date()).valueOf().toString())
+                        connectionInit.invoke("AddTeacherToGroup", userInfo.name, onlineInfo.signalRId, (new Date()).valueOf().toString())
                     } else if(kind === 'student') {
-                        connectionInit.invoke("AddStudentToGroup", userInfo.name, "61f0bb74593884e759700f0a", (new Date()).valueOf().toString())
+                        connectionInit.invoke("AddStudentToGroup", userInfo.name, onlineInfo.signalRId, (new Date()).valueOf().toString())
                     }
+
                     }
                 ).catch(function (err) {
                 notification.error({
@@ -104,45 +106,49 @@ const Area1 = ({setChatContentString, kind}) => {
             setConnection(connectionInit)
 
             console.log('保存connection')
-            dispatch(saveSignalR({
-                connection: connectionInit,
-                groupName: "61f0bb74593884e759700f0a"
-            }))
+                dispatch(saveSignalR({
+                    connection: connectionInit,
+                    groupName: onlineInfo.signalRId
+                }))
             console.log('保存connection')
-        }, []
+        }
+        }, [onlineInfo]
     )
 
 
     return (
         <div style={{background: 'white', width: "100%", height: "380px"}}>
-            <ChatComponent data={chat}/>
-            <div style={{display: 'flex', flexDirection: 'row'}}>
-                <Input.TextArea
-                    placeholder='输入消息'
-                    style={{width: 500}}
-                    onChange={(e) => {
-                        setInputMessage(e.target.value)
-                    }}
-                />
-                <Button
-                    style={{height: 54, marginLeft: 'auto', marginRight: 0}}
-                    disabled={buttonFlag}
-                    onClick={() => {
-                        console.log(userInfo.name)
-                        console.log(inputMessage)
-                        // connection.invoke("SendMessage", userInfo.name, inputMessage, (new Date()).valueOf().toString()).catch((err) => {
-                        //     return console.error(err.toString())
-                        // })
-                        connection.invoke("SendChatInGroup", "61f0bb74593884e759700f0a", userInfo.name, inputMessage, (new Date()).valueOf().toString()).catch((err) => {
-                            return console.error(err.toString())
-                        })
-                        play()
+            {onlineInfo && (
+                <>
+                    <ChatComponent data={chat}/>
+                    <div style={{display: 'flex', flexDirection: 'row'}}>
+                        <Input.TextArea
+                            placeholder='输入消息'
+                            style={{width: 500}}
+                            onChange={(e) => {
+                                setInputMessage(e.target.value)
+                            }}
+                        />
+                        <Button
+                            style={{height: 54, marginLeft: 'auto', marginRight: 0}}
+                            disabled={buttonFlag}
+                            onClick={() => {
+                                console.log(userInfo.name)
+                                console.log(inputMessage)
+                                // connection.invoke("SendMessage", userInfo.name, inputMessage, (new Date()).valueOf().toString()).catch((err) => {
+                                //     return console.error(err.toString())
+                                // })
+                                connection.invoke("SendChatInGroup", onlineInfo.signalRId, userInfo.name, inputMessage, (new Date()).valueOf().toString()).catch((err) => {
+                                    return console.error(err.toString())
+                                })
+                                play()
 
-                    }}>
-                    发送
-                </Button>
-            </div>
-
+                            }}>
+                            发送
+                        </Button>
+                    </div>
+                </>
+            )}
         </div>
     )
 }
