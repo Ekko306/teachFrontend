@@ -73,6 +73,8 @@ const Teach = function () {
         "class": ""
     }
 
+    const [stu_status, setStu_status] =useState('unAllowEdit')
+
     usePrompt("您有未结束的教学！离开将丢失数据！！", status === 'teaching');
 
     useEffect(()=>{
@@ -236,12 +238,14 @@ const Teach = function () {
                 <div className="teaching">
                     <Area1 setChatContentString={setChatContentString} kind={userKind}/>
                     <Area2 onlineInfo={onlineInfo} teacherSelect={stu_teacherSelect}/>
-                    <Area3/>
+                    <Area3 disabled={(userKind !== 'teacher') && stu_status !== 'allowEdit'}/>
                     <AccessControl
                         allowedPermissions={["在线教学权限"]}
                         renderNoAccess={() => (
                             <div style={{background: 'white', width: "100%", height: "380px", padding: '10px'}}>
-                                学生
+                                <div>当前状态：{stu_status}</div>
+                                <div>1. 若状态为unAllowEdit：你不可编辑，只能查看老师教学</div>
+                                <div>2. 若状态为AllowEdit：可编辑并且提交你的作品</div>
                             </div>
                         )
                         }
