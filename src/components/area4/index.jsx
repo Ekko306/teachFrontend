@@ -8,6 +8,7 @@ import {selectUserInfo} from "../../store/features/user/userSlice";
 import {selectDrawing} from "../../store/features/drawing/drawingSlice";
 import AccessControl from "../accessControl/AccessControl";
 import {deleteFunc} from "../../services/request";
+import {Subject} from "@microsoft/signalr";
 
 function toReadTime(time) {
     var date = new Date(time)
@@ -99,8 +100,16 @@ const Area4 = ({func, onEndFunc, stu_status, setStu_status}) => {
     }
     useEffect(()=>{
         if(ready) {
-            connection.on("ReceiveSavedImage", (user, image, time) => {
-                alertSave(user, image, time)
+            // connection.on("ReceiveSavedImage", (user, image, time) => {
+            //     alertSave(user, image, time)
+            // })
+            connection.on("ReceiveSavedImageStream", (data)=>{
+                // 字符串是base64 + $ + groupName + user + time 自己再拆分
+                console.log(data, '我想要的数据')
+                let spiltStrings = data.split("$");
+                let objectData = JSON.parse(spiltStrings[1])
+
+                alertSave(objectData.user, spiltStrings[0], objectData.time)
             })
             connection.on("ReceiveStatus", (groupName, status) => {
                 setStu_status(status)
@@ -142,6 +151,21 @@ const Area4 = ({func, onEndFunc, stu_status, setStu_status}) => {
     //     }
     // }, [handEnd])
 
+    function sendSavedImageByStream(groupName, user, message, time) {
+        var tempObject= {
+            groupName,
+            user,
+            time
+        }
+        var messages = message + "$" + JSON.stringify(tempObject) + "#"
+        var subject = new Subject();
+        var chunkSize = 5;
+        connection.send("UploadSavedImageStream", subject).catch(err => console.error(err.toString())).catch(err => console.error(err.toString()));
+        for (var i = 0; i < messages.length; i += chunkSize) {
+            subject.next(messages.slice(i, i + chunkSize));
+        }
+    }
+
     return (
         <div style={{background: 'white', width: "100%", height: "380px", padding: '10px'}}>
             <AccessControl
@@ -154,7 +178,8 @@ const Area4 = ({func, onEndFunc, stu_status, setStu_status}) => {
                         <div>3. 若状态为end：老师已结束教学您可退出</div>
                         <div style={{display: 'flex', flexDirection: 'row'}}>
                             <Button type="primary" disabled={stu_status!=='allowEdit'} onClick={()=>{
-                                connection.invoke("SendSavedImageInGroup", groupName, userInfo.name, drawing, (new Date()).valueOf().toString())
+                                sendSavedImageByStream(groupName, userInfo.name, drawing,(new Date()).valueOf().toString());
+                                // connection.invoke("SendSavedImageInGroup", groupName, userInfo.name, drawing, (new Date()).valueOf().toString())
                             }}>上传截图</Button>
                             <Button style={{marginLeft: "auto", marginRight: 0}} type="danger" onClick={()=>{
                                 deleteFunc('/api/online/' + userInfo.id).then((res) => {
@@ -176,7 +201,9 @@ const Area4 = ({func, onEndFunc, stu_status, setStu_status}) => {
                         //  1. 一个是调用SendSavedImageInGroup方法 传给老师（只有老师监听ReceiveSavedImage） 老师自己发给自己也行
                         //  （同学需要有权限之后才能调用，权限要设计另外一个api）
                         //  2. 二个是保存到redux（在ReceiveSavedImage的事件里保存）
-                        connection.invoke("SendSavedImageInGroup", groupName, userInfo.name, drawing, (new Date()).valueOf().toString())
+
+                        sendSavedImageByStream(groupName, userInfo.name, drawing,(new Date()).valueOf().toString());
+                        // connection.invoke("SendSavedImageInGroup", groupName, userInfo.name, drawing, (new Date()).valueOf().toString())
                     }}>保存绘图上传</Button>
                     <Button type="primary" onClick={()=>{
                         connection.invoke("SendStatusInGroup", groupName, 'allowEdit')

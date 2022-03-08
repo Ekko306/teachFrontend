@@ -2,6 +2,9 @@
 // loadUrl加载方法里 将dataUrl数据导入到canvas https://stackoverflow.com/questions/8473205/convert-and-insert-base64-data-to-canvas-in-javascript
 // 他的例子都做好了 赞
 
+import {Subject} from '@microsoft/signalr'
+
+
 import {saveDrawing} from "../../store/features/drawing/drawingSlice";
 
 console.log('启动绘图！')
@@ -362,6 +365,23 @@ function startPaint(paintDom, connection, groupName, user, dispatch) {
     console.log(user, image, time, '接收图片')
   })
 
+  // 改变传送image base64数据为流方式
+  // 原来方式：
+  // connection.invoke("SendImageInGroup", groupName, user ,message, (new Date()).valueOf().toString()).catch(err => console.error(err.toString()))
+  function sendImageByStream(groupName, user, message, time) {
+    var tempObject= {
+      groupName,
+      user,
+      time
+    }
+    var messages = message + "$" + JSON.stringify(tempObject) + "#"
+    var subject = new Subject();
+    var chunkSize = 5;
+    connection.send("UploadImageStream", subject).catch(err => console.error(err.toString())).catch(err => console.error(err.toString()));
+    for (var i = 0; i < messages.length; i += chunkSize) {
+      subject.next(messages.slice(i, i + chunkSize));
+    }
+  }
 
 
   // 发送数据
@@ -369,7 +389,8 @@ function startPaint(paintDom, connection, groupName, user, dispatch) {
         console.log('123123')
         var message = cx.canvas.toDataURL();
         dispatch(saveDrawing(message))
-        connection.invoke("SendImageInGroup", groupName, user ,message, (new Date()).valueOf().toString()).catch(err => console.error(err.toString()))
+        // connection.invoke("SendImageInGroup", groupName, user ,message, (new Date()).valueOf().toString()).catch(err => console.error(err.toString()))
+        sendImageByStream(groupName, user,message , (new Date()).valueOf().toString())
   }
 
   function toReadTime(time) {
@@ -384,13 +405,25 @@ function startPaint(paintDom, connection, groupName, user, dispatch) {
   informationDom.appendChild(elt("div", {style: "margin-left: auto; margin-right: 0; color: #f3b09a", id: 'textInfo'}, '最后编辑：'))
 
   var textInfoDom = document.getElementById("textInfo")
-  // 接收数据
-  connection.on("ReceiveImage", (user, image, time) => {
-    console.log(user, time)
-    textInfoDom.innerText = '最后编辑：'+user+ ' ' +toReadTime(parseInt(time))
-      console.log(image)
-      loadImageURL(cx, image)
-  });
+
+
+  // 接收数据 还是定义 但是永远不会触发
+  // connection.on("ReceiveImage", (user, image, time) => {
+  //   console.log(user, time)
+  //   textInfoDom.innerText = '最后编辑：'+user+ ' ' +toReadTime(parseInt(time))
+  //     console.log(image)
+  //     loadImageURL(cx, image)
+  // });
+
+  connection.on("ReceiveImageStream", (data)=>{
+    // 字符串是base64 + $ + groupName + user + time 自己再拆分
+    console.log(data, '我想要的数据')
+    let spiltStrings = data.split("$");
+    let objectData = JSON.parse(spiltStrings[1])
+
+    textInfoDom.innerText = '最后编辑：'+objectData.user+ ' ' +toReadTime(parseInt(objectData.time))
+    loadImageURL(cx, spiltStrings[0])
+  })
 
 }
 
