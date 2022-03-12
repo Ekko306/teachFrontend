@@ -1,12 +1,13 @@
 import './index.css'
 import React, {useEffect, useState} from 'react';
-import {Tag, Button, Select, Popconfirm, message} from 'antd';
+import {Tag, Button, Select, Popconfirm, message, notification} from 'antd';
 import {Link} from 'react-router-dom'
 import {useNavigate} from "react-router";
 import ProList from '@ant-design/pro-list';
 import {useSelector} from "react-redux";
-import {selectUserInfo} from "../../../store/features/user/userSlice";
+import {selectUserInfo, selectUserKind} from "../../../store/features/user/userSlice";
 import {deleteFunc, get} from "../../../services/request";
+import AccessControl from "../../../components/accessControl/AccessControl";
 
 const { Option } = Select
 // 一次性请求所有数据 免得分页麻烦 前端再来自己分页
@@ -18,6 +19,7 @@ const TeachHistory = function() {
     const navigate = useNavigate()
     const [classSelect, setClassSelect] = useState()
     const userInfo = useSelector(selectUserInfo)
+    const userKind = useSelector(selectUserKind)
 
     const [allRecordSave, setAllRecordSave] = useState([])
     const [record, setRecord] = useState([])
@@ -55,7 +57,7 @@ const TeachHistory = function() {
             onConfirm={()=>{
                 deleteFunc('/api/record/' + ele.id).then(res=>{
                     message.success(`删除记录成功：标题：${ele.title}`)
-                    refresh()
+                    refreshForTeacher()
                 })
             }}
             onCancel={()=>{}}
@@ -80,7 +82,7 @@ const TeachHistory = function() {
         )
     }))
 
-    const refresh = () => {
+    const refreshForTeacher = () => {
         get('/api/record/teacher/' + userInfo.id).then(res=>{
             setRecord(res)
             setAllRecordSave(res)
@@ -93,8 +95,29 @@ const TeachHistory = function() {
             }
         })
     }
+
+    const refreshForStudent = () => {
+        get('/api/record/student/' + userInfo.class).then(res=>{
+            setRecord(res)
+            setAllRecordSave(res)
+            if(classSelect === undefined) {
+                setRecord(res)
+            } else {
+                setRecord(res.filter((e)=>{
+                    return e.class === classSelect
+                }))
+            }
+        })
+    }
+
     useEffect(()=>{
-        refresh()
+        console.log(userKind, 'userKind')
+        console.log(userInfo, 'userInfo')
+        if(userKind === "teacher") {
+            refreshForTeacher()
+        } else if(userKind === "student") {
+            refreshForStudent()
+        }
     }, [])
 
     useEffect(()=>{
@@ -103,22 +126,31 @@ const TeachHistory = function() {
 
     return (
         <>
-            <div className="operate">
-                <Button type="primary" onClick={()=>{navigate("/teach")}}>
-                    新建教学
-                </Button>
-                <Select
-                    style={{marginLeft: 'auto', marginRight: 0, width: '200px'}}
+            <AccessControl
+                allowedPermissions={["在线教学权限"]}
+                renderNoAccess={() => (
+                    <div>当前班级：{userInfo.class}</div>
+                )
+                }
+            >
+                <div className="operate">
+                    <Button type="primary" onClick={()=>{navigate("/teach")}}>
+                        新建教学
+                    </Button>
+                    <Select
+                        style={{marginLeft: 'auto', marginRight: 0, width: '200px'}}
                         allowClear
                         placeholder="选择班级"
                         onChange={(value) => {
-                    setClassSelect(value)
-                }}>
-                    {userInfo.class.map((e, index) => {
-                        return <Option key={index} value={e}>班级{e}</Option>
-                    })}
-                </Select>
-            </div>
+                            setClassSelect(value)
+                        }}>
+                        {Array.isArray(userInfo?.class) ? userInfo?.class.map((e, index) => {
+                            return <Option key={index} value={e}>班级{e}</Option>
+                        }) : null}
+                    </Select>
+                </div>
+            </AccessControl>
+
             <ProList
                 pagination={{
                 defaultPageSize: 4,

@@ -48,9 +48,13 @@ const ParentLayout = function () {
                     <AccessControl
                         allowedPermissions={["管理个人面板"]}
                         renderNoAccess={() =>
-                            <Menu.Item key="2" icon={<UserOutlined/>} style={{paddingLeft: !collapsed? '24px' : '32px', display: !collapsed? null: 'flex'}}>
-                                <Menu.Item key="3"><Link to="/personal/selfInfo">信息维护</Link></Menu.Item>
-                            </Menu.Item>
+                            // <Menu.Item key="2" icon={<UserOutlined/>} style={{paddingLeft: !collapsed? '24px' : '32px', display: !collapsed? null: 'flex'}}>
+                            //     <Menu.Item key="3"><Link to="/personal/selfInfo">信息维护</Link></Menu.Item
+                            // </Menu.Item>
+                            <Menu.SubMenu key="sub1" icon={<UserOutlined/>} title="个人面板" >
+                            <Menu.Item key="3"><Link to="/personal/selfInfo">信息维护</Link></Menu.Item>
+                            <Menu.Item key="4"><Link to="/personal/teachHistory">教学历史</Link></Menu.Item>
+                            </Menu.SubMenu>
                         }
                     >
                         <Menu.SubMenu key="sub1" icon={<UserOutlined/>} title="个人面板" >
