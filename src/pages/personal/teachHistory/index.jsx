@@ -82,6 +82,26 @@ const TeachHistory = function() {
         )
     }))
 
+    let recordDataForStudent = record.map((ele)=>({
+        title: <div>记录标题：{ele.title}</div>,
+        subTitle: <Tag color={colorMap.get(ele.class)}>班级{ele.class}</Tag>,
+        actions: [<a key="run" onClick={()=>{navigate("/personal/teachHistory/" + ele.id)}}>查看</a>],
+        avatar: 'https://gw.alipayobjects.com/zos/antfincdn/UCSiy1j6jx/xingzhuang.svg',
+        content: (
+            <div
+                style={{
+                    flex: 1,
+                    padding: '0 8px'
+                }}
+            >
+                <div>介绍：{ele.introduction !== "" ? ele.introduction : "【这个人很懒没写介绍】"}</div>
+                <div>时间：{detailTime(ele.time)}</div>
+                <div>教学图片：</div>
+                <img src={ele?.images ? ele.images[0] : ""} width="100%" style={{border: '4px groove pink'}}/>
+            </div>
+        )
+    }))
+
     const refreshForTeacher = () => {
         get('/api/record/teacher/' + userInfo.id).then(res=>{
             setRecord(res)
@@ -151,23 +171,49 @@ const TeachHistory = function() {
                 </div>
             </AccessControl>
 
-            <ProList
-                pagination={{
-                defaultPageSize: 4,
-                showSizeChanger: false,
-            }}
-                grid={{ gutter: 16, column: 2 }}
-                metas={{
-                title: {},
-                subTitle: {},
-                type: {},
-                avatar: {},
-                content: {},
-                actions: {cardActionProps: 'actions'},
-            }}
-                headerTitle="教学历史列表"
-                dataSource={recordData}
+
+            <AccessControl
+                allowedPermissions={["在线教学权限"]}
+                renderNoAccess={() => (
+                    <ProList
+                        pagination={{
+                            defaultPageSize: 4,
+                            showSizeChanger: false,
+                        }}
+                        grid={{ gutter: 16, column: 2 }}
+                        metas={{
+                            title: {},
+                            subTitle: {},
+                            type: {},
+                            avatar: {},
+                            content: {},
+                            actions: {cardActionProps: 'actions'},
+                        }}
+                        headerTitle="教学历史列表"
+                        dataSource={recordDataForStudent}
+                    />
+                )
+                }
+            >
+                <ProList
+                    pagination={{
+                        defaultPageSize: 4,
+                        showSizeChanger: false,
+                    }}
+                    grid={{ gutter: 16, column: 2 }}
+                    metas={{
+                        title: {},
+                        subTitle: {},
+                        type: {},
+                        avatar: {},
+                        content: {},
+                        actions: {cardActionProps: 'actions'},
+                    }}
+                    headerTitle="教学历史列表"
+                    dataSource={recordData}
                 />
+            </AccessControl>
+
         </>
     )
 }
